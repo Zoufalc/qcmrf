@@ -3,6 +3,8 @@ import numpy as np
 from scipy.linalg import expm
 np.set_printoptions(threshold=sys.maxsize,linewidth=1024)
 
+np.random.seed(3)
+
 import itertools
 from colored import fg, bg, attr
 
@@ -217,7 +219,7 @@ def expH_from_list_real_RUS(beta, L0, lnZ=0):
 		u_instr = U.to_circuit()
 		OL = 3
 		UU = transpile(u_instr, basis_gates=['cx', 'id', 'rx', 'ry', 'rz', 'sx', 'x', 'y', 'z'],
-					   optimization_level=OL).to_gate()
+					   optimization_level=OL, seed_transpiler=3).to_gate()
 		u = UU.control(1, ctrl_state='0')
 		if U.adjoint() == U:
 			v = UU.control(1)
@@ -225,7 +227,7 @@ def expH_from_list_real_RUS(beta, L0, lnZ=0):
 			v_instr = U.adjoint().to_circuit()
 			VV = transpile(v_instr,
 						   basis_gates=['cx', 'id', 'rx', 'ry', 'rz', 'sx', 'x', 'y', 'z'],
-						   optimization_level=OL).to_gate()
+						   optimization_level=OL, seed_transpiler=3).to_gate()
 			v = VV.control(1)
 		circ.h(qr[n + 1 + i])
 		circ.append(v, [qr[n + 1 + i]] + [qr[j] for j in range(n + 1)])
@@ -271,7 +273,8 @@ for C in RUNS:
 		R2b = expH_from_list_real_RUS(beta, LL)
 		print(R2b)
 		OL  = 3
-		UU  = transpile(R2b, basis_gates=['cx','id','rz','sx','x'], optimization_level=OL)
+		UU  = transpile(R2b, basis_gates=['cx','id','rz','sx','x'], optimization_level=OL,
+						seed_transpiler=3)
 		N   = 1000000
 		sim = Aer.get_backend('aer_simulator')
 		j   = sim.run(assemble(UU,shots=N))
