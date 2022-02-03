@@ -3,14 +3,12 @@ import numpy as np
 from scipy.linalg import expm
 np.set_printoptions(threshold=sys.maxsize,linewidth=1024)
 
-np.random.seed(3)
-
 import itertools
 from colored import fg, bg, attr
 
-from qiskit.opflow import I, X, Z, Plus, Minus, H, Zero, One
+from qiskit.opflow import I, X, Z, Plus, Minus, H, Zero, One, MatrixOp
 from qiskit.compiler import transpile
-from qiskit import QuantumRegister, QuantumCircuit, ClassicalRegister
+from qiskit import QuantumRegister, QuantumCircuit
 from qiskit import Aer, assemble
 
 #######################################
@@ -133,11 +131,16 @@ def genUphi(U,phi):
 	assert np.isclose(phi[0], phi[1])
 	#assert U == ~U (always true)
 	#assert RZ1 == RZ2 (always true)
-	return RZ1 @ U @ RZ1 @ U # ignored conjugate transpose of first U bc symmetric and real
+	return (RZ1 @ U)**2 # ignored conjugate transpose of first U bc symmetric and real
 
 # returns unitary if Eigenvalues of A are bounded by 1
 def uniEmbedding(A):
 	return (X^((I^n)-A)) + (Z^A)
+	
+def uniEmbeddingN(A):
+	M = A.to_matrix()
+	U = np.matrix(np.block([[M,np.sqrt(np.eye(2**n)-(M@M))],[np.sqrt(np.eye(2**n)-(M@M)),-M]]))
+	return MatrixOp(U)
 
 # returns unitary if A is unitary
 def conjugateBlocks(A):
@@ -193,11 +196,10 @@ def expH_from_list_unreal(beta, L0, lnZ=0):
 # computes exp(-beta H) = PROD_j exp(-beta w_j Phi_j) = PROD_j REAL( P**(beta w_j)(U_j) )
 def expH_from_list_real_RUS(beta, L0, lnZ=0):
 	CL = len(L0)
-	qr = QuantumRegister(n+1+CL, 'q') # one aux for unitary embedding plus one aux per factor
-	cr = ClassicalRegister(n + 1 + CL, 'c')  # one aux for unitary embedding plus one aux per factor
+	qr = QuantumRegister(n+CL, 'q') # one aux for unitary embedding plus one aux per factor
 	
 	# create empty main circuit with d+1 aux qubits
-	circ = QuantumCircuit(qr, cr)
+	circ = QuantumCircuit(n+CL,n+CL)
 	for i in range(n):
 		circ.h(qr[i])
 		
@@ -214,34 +216,29 @@ def expH_from_list_real_RUS(beta, L0, lnZ=0):
 			U = genUphi(uniEmbedding(Phi0), genPhaseFactors(np.exp(beta*w)))
 			RESULT = U @ RESULT
 
+		M = RESULT.to_matrix()[:2**(n),:2**(n)] # hack
+		RESULT = MatrixOp(M)
+		#print(M @ np.conjugate(np.transpose(M)))
+#		print(RESULT.to_matrix().astype(float))
+
 		# Write U**gamma and ~U**gamma on diagonal of matrix, creates j-th aux qubit
 		# Create "instruction" which can be used in another circuit
-		u_instr = U.to_circuit()
-		OL = 3
-		UU = transpile(u_instr, basis_gates=['cx', 'id', 'rx', 'ry', 'rz', 'sx', 'x', 'y', 'z'],
-					   optimization_level=OL, seed_transpiler=3).to_gate()
-		u = UU.control(1, ctrl_state='0')
-		if U.adjoint() == U:
-			v = UU.control(1)
-		else:
-			v_instr = U.adjoint().to_circuit()
-			VV = transpile(v_instr,
-						   basis_gates=['cx', 'id', 'rx', 'ry', 'rz', 'sx', 'x', 'y', 'z'],
-						   optimization_level=OL, seed_transpiler=3).to_gate()
-			v = VV.control(1)
-		circ.h(qr[n + 1 + i])
-		circ.append(v, [qr[n + 1 + i]] + [qr[j] for j in range(n + 1)])
-		circ.append(u, [qr[n + 1 + i]] + [qr[j] for j in range(n + 1)])
-		circ.h(qr[n + 1 + i])
+		u = conjugateBlocks(RESULT).to_circuit().to_instruction(label='U_C'+str(ii))
 
-		circ.measure(qr[n+1+i],cr[n+1+i])
+		# add Hadamard to j-th aux qubit
+		circ.h(qr[n+i])
+		# add U**gamma circuit to main circuit
+		circ.append(u, [qr[j] for j in range(n)]+[qr[n+i]])
+		# add another Hadamard to aux qubit
+		circ.h(qr[n+i])
+		circ.measure([n+i],[n+i])
 		
 		circ.barrier(qr)
 
 		i = i + 1
 
 	# measure all qubits
-	circ.measure(range(n+1),range(n+1))
+	circ.measure(range(n),range(n))
 	return circ
 
 #######################################
@@ -249,9 +246,9 @@ def expH_from_list_real_RUS(beta, L0, lnZ=0):
 RUNS = [[[0]],[[0,1]],[[0,1],[1,2]],[[0,1],[1,2],[2,3]]]
 #,[[0,1],[1,2],[2,3],[0,3]],[[0,1,2],[0,2,3]],[[0,1,2,3]]]
 #RUNS = [[[0,1],[1,2],[2,3],[0,3]],[[0,1],[1,2],[2,3],[0,3],[3,4,5]]]
-#RUNS = [[[0,1],[1,2],[2,3],[0,3],[3,4,5]]]
+#RUNS = [[[0,1,2,3],[3,4,5,6]]]
 
-logfile = open("results_experiment_4.csv", "w")
+logfile = open("results_experiment_5.csv", "w")
 logfile.write('n,d,num_cliques,C_max,fidelity,KL,success_rate,num_gates,depth,shots,w_min,w_max\n')
 
 for C in RUNS:
@@ -271,14 +268,14 @@ for C in RUNS:
 		beta = 1
 		R0  = expm(-beta*HAM.to_matrix()) # exp(-βH) via numpy for debugging
 		R2b = expH_from_list_real_RUS(beta, LL)
-		print(R2b)
 		OL  = 3
-		UU  = transpile(R2b, basis_gates=['cx','id','rz','sx','x'], optimization_level=OL,
-						seed_transpiler=3)
+		UU  = transpile(R2b, basis_gates=['cx','id','rz','sx','x'], optimization_level=OL)
+		#print(UU)
 		N   = 1000000
 		sim = Aer.get_backend('aer_simulator')
 		j   = sim.run(assemble(UU,shots=N))
 		R   = j.result().get_counts()
+		print(R)
 		Y   = list(itertools.product([0, 1], repeat=n))
 		P   = np.zeros(dim)
 
@@ -300,13 +297,10 @@ for C in RUNS:
 			s = ''
 			for b in y:
 				s += str(b)
-			s0 = '0'*len(C) + '0' + s
-			s1 = '0'*len(C) + '1' + s
+			s0 = '0'*len(C) + s
 
 			if s0 in R:
 				P[i] += R[s0]
-			if s1 in R:
-				P[i] += R[s1]
 
 		ZZ = np.sum(P)
 		P = P/ZZ

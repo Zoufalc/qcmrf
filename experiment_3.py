@@ -6,7 +6,7 @@ np.set_printoptions(threshold=sys.maxsize,linewidth=1024)
 import itertools
 from colored import fg, bg, attr
 
-from qiskit.opflow import I, X, Z, Plus, Minus, H, Zero, One
+from qiskit.opflow import I, X, Z, Plus, Minus, H, Zero, One, MatrixOp
 from qiskit.compiler import transpile
 from qiskit import QuantumRegister, QuantumCircuit
 from qiskit import Aer, assemble
@@ -136,6 +136,11 @@ def genUphi(U,phi):
 # returns unitary if Eigenvalues of A are bounded by 1
 def uniEmbedding(A):
 	return (X^((I^n)-A)) + (Z^A)
+	
+def uniEmbeddingN(A):
+	M = A.to_matrix()
+	U = np.matrix(np.block([[M,np.sqrt(np.eye(2**n)-(M@M))],[np.sqrt(np.eye(2**n)-(M@M)),-M]]))
+	return MatrixOp(U)
 
 # returns unitary if A is unitary
 def conjugateBlocks(A):
@@ -208,8 +213,11 @@ def expH_from_list_real_RUS(beta, L0, lnZ=0):
 			assert w < 0
 
 			# compute U**gamma = P**(beta w_j)(U_j)
+			#for UU in Phi0:
 			U = genUphi(uniEmbedding(Phi0), genPhaseFactors(np.exp(beta*w)))
 			RESULT = U @ RESULT
+			
+#		print(RESULT.to_matrix().astype(float))
 
 		# Write U**gamma and ~U**gamma on diagonal of matrix, creates j-th aux qubit
 		# Create "instruction" which can be used in another circuit
@@ -238,7 +246,7 @@ RUNS = [[[0]],[[0,1]],[[0,1],[1,2]],[[0,1],[1,2],[2,3]]]
 #RUNS = [[[0,1],[1,2],[2,3],[0,3]],[[0,1],[1,2],[2,3],[0,3],[3,4,5]]]
 #RUNS = [[[0,1],[1,2],[2,3],[0,3],[3,4,5]]]
 
-logfile = open("results_experiment_1.csv", "w")
+logfile = open("results_experiment_3.csv", "w")
 logfile.write('n,d,num_cliques,C_max,fidelity,KL,success_rate,num_gates,depth,shots,w_min,w_max\n')
 
 for C in RUNS:
@@ -258,7 +266,6 @@ for C in RUNS:
 		beta = 1
 		R0  = expm(-beta*HAM.to_matrix()) # exp(-βH) via numpy for debugging
 		R2b = expH_from_list_real_RUS(beta, LL)
-		print(R2b)
 		OL  = 3
 		UU  = transpile(R2b, basis_gates=['cx','id','rz','sx','x'], optimization_level=OL)
 		N   = 1000000
