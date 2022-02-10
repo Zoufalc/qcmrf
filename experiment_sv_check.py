@@ -6,10 +6,11 @@ np.set_printoptions(threshold=sys.maxsize,linewidth=1024)
 import itertools
 from colored import fg, bg, attr
 
-from qiskit.opflow import I, X, Z, Plus, Minus, H, Zero, One, MatrixOp
+from qiskit.opflow import I, X, Z, Plus, Minus, H, Zero, One, MatrixOp, OperatorBase
 from qiskit.compiler import transpile
 from qiskit import QuantumRegister, QuantumCircuit
 from qiskit import Aer, assemble
+from qiskit.quantum_info import partial_trace
 
 #######################################
 
@@ -220,10 +221,11 @@ def expH_from_list_real_RUS(beta, L0, lnZ=0):
 		RESULT = MatrixOp(M)
 		#print(M @ np.conjugate(np.transpose(M)))
 #		print(RESULT.to_matrix().astype(float))
+		u = conjugateBlocks(RESULT)
 
 		# Write U**gamma and ~U**gamma on diagonal of matrix, creates j-th aux qubit
 		# Create "instruction" which can be used in another circuit
-		u = conjugateBlocks(RESULT).to_circuit().to_instruction(label='U_C'+str(ii))
+		u = u.to_circuit().to_instruction(label='U_C'+str(ii))
 
 		# add Hadamard to j-th aux qubit
 		circ.h(qr[n+i])
@@ -231,14 +233,14 @@ def expH_from_list_real_RUS(beta, L0, lnZ=0):
 		circ.append(u, [qr[j] for j in range(n)]+[qr[n+i]])
 		# add another Hadamard to aux qubit
 		circ.h(qr[n+i])
-		circ.measure([n+i],[n+i])
+		# circ.measure([n+i],[n+i])
 		
 		circ.barrier(qr)
 
 		i = i + 1
 
 	# measure all qubits
-	circ.measure(range(n),range(n))
+	# circ.measure(range(n),range(n))
 	return circ
 
 #######################################
@@ -248,7 +250,7 @@ RUNS = [[[0]],[[0,1]],[[0,1],[1,2]],[[0,1],[1,2],[2,3]]]
 #RUNS = [[[0,1],[1,2],[2,3],[0,3]],[[0,1],[1,2],[2,3],[0,3],[3,4,5]]]
 #RUNS = [[[0,1,2,3],[3,4,5,6]]]
 
-logfile = open("results_experiment_5.csv", "w")
+logfile = open("results_experiment_6.csv", "w")
 logfile.write('n,d,num_cliques,C_max,fidelity,KL,success_rate,num_gates,depth,shots,w_min,w_max\n')
 
 for C in RUNS:
@@ -272,9 +274,13 @@ for C in RUNS:
 		UU  = transpile(R2b, basis_gates=['cx','id','rz','sx','x'], optimization_level=OL)
 		#print(UU)
 		N   = 1000000
-		sim = Aer.get_backend('aer_simulator')
-		j   = sim.run(assemble(UU,shots=N))
-		R   = j.result().get_counts()
+		from qiskit import Aer
+		sim = Aer.get_backend('statevector_simulator')
+		# sim = Aer.get_backend('aer_simulator')
+		# j   = sim.run(assemble(UU,shots=N))
+		# R   = j.result().get_counts()
+		j = sim.run(assemble(UU))
+		R = j.result().get_statevector()
 		print(R)
 		Y   = list(itertools.product([0, 1], repeat=n))
 		P   = np.zeros(dim)
@@ -293,20 +299,39 @@ for C in RUNS:
 				elif ww > wmax:
 					wmax = ww
 
-		for i,y in enumerate(Y):
-			s = ''
-			for b in y:
-				s += str(b)
-			s0 = '0'*len(C) + s
 
-			if s0 in R:
-				P[i] += R[s0]
+		proj_0 = np.array([[1, 0], [0, 0]])
 
-		ZZ = np.sum(P)
-		P = P/ZZ
+		proj = proj_0
+		for j in range(len(C)-1):
+			proj = np.kron(proj, proj_0)
+
+		proj = np.kron(proj, np.eye(2**n))
+
+		proj_res = np.dot(R.data, proj)
+		proj_trace_res = partial_trace(proj_res, range(n, n+len(C)))
+		probs = np.diag(proj_trace_res.data)
+		ZZ = np.sum(probs)
+		probs = probs / np.sum(probs)
+		# for i,y in enumerate(Y):
+		# 	s = ''
+		# 	for b in y:
+		# 		s += str(b)
+		# 	s0 = '0'*len(C) + s
+        #
+		# 	if s0 in R:
+		# 		P[i] += R[s0]
+        #
+		# ZZ = np.sum(P)
+		# P = P/ZZ
+
 
 		lnZ = np.log(np.trace(R0))
 		Q = np.diag(R0/np.exp(lnZ))
+
+		print('Exact ? ', np.array_equal(Q, probs))
+		print('probs ', probs)
+		print('Q ', Q)
 
 		logs = str(n)+','+str(d)+','+str(len(C))+','+str(cmax)+','+str(np.real(fidelity(P,Q)))+','+str(np.real(KL(Q,P)))+','+str(ZZ/N)+','+str(len(UU))+','+str(UU.depth())+','+str(N)+','+str(wmin)+','+str(wmax)
 		print(logs)
