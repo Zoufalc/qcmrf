@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="9e7856e7-247e-4b5b-8a06-86dd39254a04" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiment_4.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiment_4.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiment_6.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiment_sv_check.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -17,8 +17,8 @@
       <file leaf-file-name="experiment_4.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/experiment_4.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3205">
-              <caret line="276" column="24" selection-start-line="276" selection-start-column="24" selection-end-line="276" selection-end-column="24" />
+            <state relative-caret-position="-438">
+              <caret line="233" column="69" selection-start-line="233" selection-start-column="69" selection-end-line="233" selection-end-column="69" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
@@ -26,14 +26,47 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="experiment_3.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="experiment_3.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/experiment_3.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="219">
-              <caret line="262" column="66" selection-start-line="262" selection-start-column="29" selection-end-line="262" selection-end-column="66" />
+            <state relative-caret-position="483">
+              <caret line="228" column="16" selection-start-line="228" selection-start-column="16" selection-end-line="228" selection-end-column="16" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="experiment_sv_check.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/experiment_sv_check.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="273">
+              <caret line="332" column="30" lean-forward="true" selection-start-line="332" selection-start-column="30" selection-end-line="332" selection-end-column="30" />
+              <folding>
+                <element signature="e#0#10#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="experiment_aqc.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/experiment_aqc.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="659">
+              <caret line="181" column="51" lean-forward="true" selection-start-line="181" selection-start-column="51" selection-end-line="181" selection-end-column="51" />
+              <folding>
+                <element signature="e#0#10#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="experiment_interm_transpilation.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/experiment_interm_transpilation.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="408">
+              <caret line="342" column="41" selection-start-line="342" selection-start-column="36" selection-end-line="342" selection-end-column="41" />
             </state>
           </provider>
         </entry>
@@ -42,7 +75,7 @@
         <entry file="file://$PROJECT_DIR$/experiment_5.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="-702">
-              <caret line="206" column="44" lean-forward="true" selection-start-line="206" selection-start-column="44" selection-end-line="206" selection-end-column="44" />
+              <caret line="206" column="44" selection-start-line="206" selection-start-column="44" selection-end-line="206" selection-end-column="44" />
             </state>
           </provider>
         </entry>
@@ -74,6 +107,7 @@
       <find>transpil</find>
       <find>+ i</find>
       <find>transpile</find>
+      <find>n</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -86,13 +120,18 @@
         <option value="$PROJECT_DIR$/experiment_1.py" />
         <option value="$PROJECT_DIR$/qcmrf.py" />
         <option value="$PROJECT_DIR$/experiment_5.py" />
+        <option value="$PROJECT_DIR$/experiment_7.py" />
+        <option value="$PROJECT_DIR$/experiment_interm_transpilation.py" />
         <option value="$PROJECT_DIR$/experiment_4.py" />
+        <option value="$PROJECT_DIR$/experiment_aqc.py" />
+        <option value="$PROJECT_DIR$/experiment_6.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
+    <option name="x" value="10" />
     <option name="y" value="25" />
-    <option name="width" value="1440" />
+    <option name="width" value="1491" />
     <option name="height" value="875" />
   </component>
   <component name="ProjectView">
@@ -135,7 +174,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.experiment_3">
+  <component name="RunManager" selected="Python.experiment_6">
     <configuration name="experiment_3" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="qcmrf" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -172,7 +211,7 @@
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
-    <configuration name="experiment_5" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="experiment_6" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="qcmrf" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -184,13 +223,13 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/experiment_5.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/experiment_sv_check.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
-    <configuration name="qcmrf" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="experiment_aqc" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="qcmrf" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -202,24 +241,44 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/qcmrf.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/experiment_aqc.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="experiment_interm_transpilation" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="qcmrf" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/experiment_interm_transpilation.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
     <list>
-      <item itemvalue="Python.qcmrf" />
       <item itemvalue="Python.experiment_3" />
+      <item itemvalue="Python.experiment_6" />
+      <item itemvalue="Python.experiment_aqc" />
+      <item itemvalue="Python.experiment_interm_transpilation" />
       <item itemvalue="Python.experiment_4" />
-      <item itemvalue="Python.experiment_5" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.experiment_3" />
-        <item itemvalue="Python.experiment_5" />
+        <item itemvalue="Python.experiment_6" />
         <item itemvalue="Python.experiment_4" />
-        <item itemvalue="Python.qcmrf" />
+        <item itemvalue="Python.experiment_aqc" />
+        <item itemvalue="Python.experiment_interm_transpilation" />
+        <item itemvalue="Python.experiment_3" />
       </list>
     </recent_temporary>
   </component>
@@ -236,19 +295,29 @@
     </task>
     <servers />
   </component>
+  <component name="TodoView">
+    <todo-panel id="selected-file">
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+  </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="25" width="1440" height="875" extended-state="0" />
+    <frame x="10" y="25" width="1491" height="875" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.14305556" />
-      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.1381623" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.3294979" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.34842768" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.30566037" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Python Console" order="7" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="7" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.0" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.44150943" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -256,7 +325,6 @@
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Find" order="1" />
     </layout>
   </component>
   <component name="VcsContentAnnotationSettings">
@@ -287,13 +355,23 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/experiment_3.py</url>
-          <line>231</line>
+          <line>239</line>
           <option name="timeStamp" value="20" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/experiment_3.py</url>
-          <line>187</line>
+          <line>192</line>
           <option name="timeStamp" value="22" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/experiment_sv_check.py</url>
+          <line>280</line>
+          <option name="timeStamp" value="31" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/experiment_sv_check.py</url>
+          <line>311</line>
+          <option name="timeStamp" value="32" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -303,7 +381,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="23" />
+      <option name="time" value="33" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
@@ -380,24 +458,58 @@
     <entry file="file://$PROJECT_DIR$/experiment_5.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-702">
-          <caret line="206" column="44" lean-forward="true" selection-start-line="206" selection-start-column="44" selection-end-line="206" selection-end-column="44" />
+          <caret line="206" column="44" selection-start-line="206" selection-start-column="44" selection-end-line="206" selection-end-column="44" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/experiment_4.py">
+    <entry file="file://$PROJECT_DIR$/experiment_3.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3205">
-          <caret line="276" column="24" selection-start-line="276" selection-start-column="24" selection-end-line="276" selection-end-column="24" />
+        <state relative-caret-position="483">
+          <caret line="228" column="16" selection-start-line="228" selection-start-column="16" selection-end-line="228" selection-end-column="16" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/experiment_3.py">
+    <entry file="file://$PROJECT_DIR$/../qiskit-terra/qiskit/compiler/transpiler.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="219">
-          <caret line="262" column="66" selection-start-line="262" selection-start-column="29" selection-end-line="262" selection-end-column="66" />
+        <state relative-caret-position="197">
+          <caret line="245" selection-start-line="245" selection-end-line="245" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiment_interm_transpilation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="408">
+          <caret line="342" column="41" selection-start-line="342" selection-start-column="36" selection-end-line="342" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiment_4.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-438">
+          <caret line="233" column="69" selection-start-line="233" selection-start-column="69" selection-end-line="233" selection-end-column="69" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiment_aqc.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="659">
+          <caret line="181" column="51" lean-forward="true" selection-start-line="181" selection-start-column="51" selection-end-line="181" selection-end-column="51" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiment_sv_check.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="273">
+          <caret line="332" column="30" lean-forward="true" selection-start-line="332" selection-start-column="30" selection-end-line="332" selection-end-column="30" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
           </folding>

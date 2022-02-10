@@ -6,11 +6,10 @@ np.set_printoptions(threshold=sys.maxsize,linewidth=1024)
 import itertools
 from colored import fg, bg, attr
 
-from qiskit.opflow import I, X, Z, Plus, Minus, H, Zero, One, MatrixOp, OperatorBase
+from qiskit.opflow import I, X, Z, Plus, Minus, H, Zero, One, MatrixOp
 from qiskit.compiler import transpile
 from qiskit import QuantumRegister, QuantumCircuit
 from qiskit import Aer, assemble
-from qiskit.quantum_info import partial_trace
 
 #######################################
 
@@ -106,9 +105,13 @@ def genHamiltonian():
 	i = 0
 	for l,c in enumerate(C):
 		Ly = []
-		for r,y in enumerate(list(itertools.product([0, 1], repeat=len(c)))):
+		for y in list(itertools.product([0, 1], repeat=len(c))):
 			Phi = genPhi(c,y)
 			theta = np.random.uniform(low=-5.0,high=-0.001) # we need a negative MRF
+			#if i==0:
+			#	theta = -3.2
+			#elif i==1:
+			#	theta = -1.8
 			R += Phi * -theta
 			Ly.append((theta,Phi)) # list of all factors that belong to same clique
 			i = i + 1
@@ -116,143 +119,59 @@ def genHamiltonian():
 
 	return R,L
 
-# compute parameters of RZ-gates
-def genPhaseFactors(ey):
-	#t = np.sqrt((-1-ey)/(-1+ey))
-	#phi1 = np.angle( ( (1+t*1j) + ey*(1-t*1j) ) / 2 )
-	#phi2 = np.real(np.angle( np.sqrt(0.5) * np.sqrt(1 - ey) * (t + 1j) ))
-
-	phi1 = 0.5 * np.arccos(ey)
-
-	return np.array([phi1, phi1])
-
-# compute unitary U**gamma = exp(U)
-def genUphi(U,phi):
-	RZ1 = ((-1)*phi[0] * Z).exp_i() ^ (I^n) # ignored sign of phi
-	RZ2 = ((-1)*phi[1] * Z).exp_i() ^ (I^n) # ignored sign of phi
-	assert np.isclose(phi[0], phi[1])
-	#assert U == ~U (always true)
-	#assert RZ1 == RZ2 (always true)
-	return (RZ1 @ U)**2 # ignored conjugate transpose of first U bc symmetric and real
-
-# returns unitary if Eigenvalues of A are bounded by 1
-def uniEmbedding(A):
-	return (X^((I^n)-A)) + (Z^A)
-	
-def uniEmbeddingN(A):
-	M = A.to_matrix()
-	U = np.matrix(np.block([[M,np.sqrt(np.eye(2**n)-(M@M))],[np.sqrt(np.eye(2**n)-(M@M)),-M]]))
-	return MatrixOp(U)
-
 # returns unitary if A is unitary
 def conjugateBlocks(A):
 	return (((I+Z)/2)^A) + (((I-Z)/2)^(~A))
 
-# works only if number of cliques is a power of two
-def expH_from_list_blocked(beta, L0, lnZ=0):
-	R = []
-	for Ly in L0:
-		L = [genUphi(uniEmbedding(Phi0), genPhaseFactors(np.exp(beta*(w0 - (lnZ/len(C)))))) for
-			 w0, Phi0 in Ly]
-		R.append(merge_all(L))
-	M = merge_all(R)
-	O = H^(I^int(n+1+np.log2(d)))
-	return O @ conjugateBlocks(M) @ (~O)
-
-def expH_from_list_real_algebraic(beta, L0, lnZ=0):
-	RESULT = I^(n+1)
-	for L in L0:
-		for (w0,Phi0) in L:
-			U = genUphi(uniEmbedding(Phi0), genPhaseFactors(np.exp(beta*(w0 - (lnZ/len(C))))))
-			RESULT = (U+(~U))/2 @ RESULT # non-unitary extraction of real part
-	return RESULT
-
-def expH_from_list_unreal(beta, L0, lnZ=0):
-	qr = QuantumRegister(n+2, 'q') # one aux for unitary embedding plus one aux per factor
-	
-	# create empty main circuit with d+1 aux qubits
-	circ = QuantumCircuit(n+2,n+2)
-	for i in range(n+1):
-		circ.h(qr[i])
-
-	RESULT = I^(n+1)
-	for L in L0:
-		for (w0,Phi0) in L:
-			w = 0.5*w0 - (lnZ/len(C)) # 0.5 => sqrt(exp(..))
-			assert w < 0
-			
-			U = genUphi(uniEmbedding(Phi0), genPhaseFactors(np.exp(beta*w)))
-			RESULT = U @ RESULT # complex result
-			
-	u = conjugateBlocks(RESULT).to_circuit().to_instruction(label='MRF')
-
-	circ.h(qr[n+1])
-	circ.append(u, range(n+2))
-	circ.h(qr[n+1])
-	
-	circ.measure(range(n+2),range(n+2))
-			
-	return circ
-
-# core method
 # computes exp(-beta H) = PROD_j exp(-beta w_j Phi_j) = PROD_j REAL( P**(beta w_j)(U_j) )
-def expH_from_list_real_RUS(beta, L0, lnZ=0):
-	CL = len(L0)
-	qr = QuantumRegister(n+CL, 'q') # one aux for unitary embedding plus one aux per factor
-	
-	# create empty main circuit with d+1 aux qubits
-	circ = QuantumCircuit(n+CL,n+CL)
+def genCircuit(beta, CLIQUES):
+	num_cliques = len(CLIQUES)
+	qr = QuantumRegister(n+num_cliques, 'q') # one aux per clique
+
+	# create empty main circuit with |C| aux qubits
+	circ = QuantumCircuit(n+num_cliques,n+num_cliques)
 	for i in range(n):
 		circ.h(qr[i])
-		
 	circ.barrier(qr)
 
-	i = 0 # enumerate 0..CL-1
-	for ii,L in enumerate(L0):
-		RESULT = I^(n+1)
-		for jj,(w0,Phi0) in enumerate(L):
-			w = 0.5*w0 - (lnZ/len(C)) # 0.5 => sqrt(exp(..))
-			assert w < 0
+	for ii,C in enumerate(CLIQUES):
+		CLIQUE_FACTOR = I^(n+1)
+		for theta,Phi in C:
+			U     = (X^((I^n)-Phi)) + (Z^Phi)
+			gamma = 0.5 * np.arccos(np.exp(beta*0.5*theta))
+			RZ    = (-gamma * Z).exp_i() ^ (I^n)
+			Ugam  = (RZ @ U)**2
+			CLIQUE_FACTOR = Ugam @ CLIQUE_FACTOR
 
-			# compute U**gamma = P**(beta w_j)(U_j)
-			U = genUphi(uniEmbedding(Phi0), genPhaseFactors(np.exp(beta*w)))
-			RESULT = U @ RESULT
-
-		M = RESULT.to_matrix()[:2**(n),:2**(n)] # hack
-		RESULT = MatrixOp(M)
-		#print(M @ np.conjugate(np.transpose(M)))
-#		print(RESULT.to_matrix().astype(float))
-		u = conjugateBlocks(RESULT)
+		M = CLIQUE_FACTOR.to_matrix()[:2**(n),:2**(n)] # extract upper left block -- hack to reduce aux qubits by 1
+		CLIQUE_FACTOR = MatrixOp(M)
 
 		# Write U**gamma and ~U**gamma on diagonal of matrix, creates j-th aux qubit
 		# Create "instruction" which can be used in another circuit
-		u = u.to_circuit().to_instruction(label='U_C'+str(ii))
+		u = conjugateBlocks(CLIQUE_FACTOR).to_circuit().to_instruction(label='U_C('+str(ii)+')')
 
 		# add Hadamard to j-th aux qubit
-		circ.h(qr[n+i])
-		# add U**gamma circuit to main circuit
-		circ.append(u, [qr[j] for j in range(n)]+[qr[n+i]])
+		circ.h(qr[n+ii])
+		# add CLIQUE_FACTOR to main circuit
+		circ.append(u, [qr[j] for j in range(n)]+[qr[n+ii]])
 		# add another Hadamard to aux qubit
-		circ.h(qr[n+i])
-		# circ.measure([n+i],[n+i])
-		
+		circ.h(qr[n+ii])
+		circ.measure([n+ii],[n+ii]) # real part extraction successful if measured 0
+
 		circ.barrier(qr)
 
-		i = i + 1
-
 	# measure all qubits
-	# circ.measure(range(n),range(n))
+	circ.measure(range(n),range(n))
 	return circ
 
 #######################################
-
 
 RUNS = [[[0]],[[0,1]],[[0,1],[1,2]],[[0,1],[1,2],[2,3]]]
 #,[[0,1],[1,2],[2,3],[0,3]],[[0,1,2],[0,2,3]],[[0,1,2,3]]]
 #RUNS = [[[0,1],[1,2],[2,3],[0,3]],[[0,1],[1,2],[2,3],[0,3],[3,4,5]]]
 #RUNS = [[[0,1,2,3],[3,4,5,6]]]
 
-logfile = open("results_experiment_6.csv", "w")
+logfile = open("results_experiment_5.csv", "w")
 logfile.write('n,d,num_cliques,C_max,fidelity,KL,success_rate,num_gates,depth,shots,w_min,w_max\n')
 
 for C in RUNS:
@@ -271,19 +190,15 @@ for C in RUNS:
 		HAM,LL = genHamiltonian() # L is list of factors
 		beta = 1
 		R0  = expm(-beta*HAM.to_matrix()) # exp(-βH) via numpy for debugging
-		R2b = expH_from_list_real_RUS(beta, LL)
+		R2b = genCircuit(beta, LL)
+		print(R2b)
 		OL  = 3
 		UU  = transpile(R2b, basis_gates=['cx','id','rz','sx','x'], optimization_level=OL)
-		#print(UU)
 		N   = 1000000
-		from qiskit import Aer
-		sim = Aer.get_backend('statevector_simulator')
-		# sim = Aer.get_backend('aer_simulator')
-		# j   = sim.run(assemble(UU,shots=N))
-		# R   = j.result().get_counts()
-		j = sim.run(assemble(UU))
-		R = j.result().get_statevector()
-		print(R)
+		sim = Aer.get_backend('qasm_simulator')
+		j   = sim.run(assemble(UU,shots=N))
+		R   = j.result().get_counts()
+		#print(R)
 		Y   = list(itertools.product([0, 1], repeat=n))
 		P   = np.zeros(dim)
 
@@ -301,39 +216,20 @@ for C in RUNS:
 				elif ww > wmax:
 					wmax = ww
 
+		for i,y in enumerate(Y):
+			s = ''
+			for b in y:
+				s += str(b)
+			s0 = '0'*len(C) + s
 
-		proj_0 = np.array([[1, 0], [0, 0]])
+			if s0 in R:
+				P[i] += R[s0]
 
-		proj = proj_0
-		for j in range(len(C)-1):
-			proj = np.kron(proj, proj_0)
-
-		proj = np.kron(proj, np.eye(2**n))
-
-		proj_res = np.dot(R.data, proj)
-		proj_trace_res = partial_trace(proj_res, range(n, n+len(C)))
-		probs = np.diag(proj_trace_res.data)
-		ZZ = np.sum(probs)
-		probs = probs / np.sum(probs)
-		# for i,y in enumerate(Y):
-		# 	s = ''
-		# 	for b in y:
-		# 		s += str(b)
-		# 	s0 = '0'*len(C) + s
-        #
-		# 	if s0 in R:
-		# 		P[i] += R[s0]
-        #
-		# ZZ = np.sum(P)
-		# P = P/ZZ
-
+		ZZ = np.sum(P)
+		P = P/ZZ
 
 		lnZ = np.log(np.trace(R0))
 		Q = np.diag(R0/np.exp(lnZ))
-
-		print('Exact ? ', np.array_equal(Q, probs))
-		print('probs ', probs)
-		print('Q ', Q)
 
 		logs = str(n)+','+str(d)+','+str(len(C))+','+str(cmax)+','+str(np.real(fidelity(P,Q)))+','+str(np.real(KL(Q,P)))+','+str(ZZ/N)+','+str(len(UU))+','+str(UU.depth())+','+str(N)+','+str(wmin)+','+str(wmax)
 		print(logs)

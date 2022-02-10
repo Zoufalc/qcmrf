@@ -1,0 +1,96 @@
+{
+  "name": "qcmrf",
+  "description": "Quantum Circuit Markov Random Fields.",
+  "max_execution_time": 25200,
+  "spec": {
+    "parameters": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "properties": {
+        "graphs": {
+          "type": "list",
+          "description": "List of list of ints. Defines clique structures of multiple graphs."
+        },
+        "thetas": {
+          "type": "list",
+          "description": "MRF parameters."
+        },
+        "gammas": {
+          "type": "list",
+          "description": "Circuit parameters."
+        },
+        "betas": {
+          "type": "list",
+          "description": "Inverse temperatures."
+        },
+        "repetitions": {
+          "type": "int",
+          "description": "Number of runs per graph."
+        },
+        "shots": {
+          "type": "int",
+          "description": "Number of samples per run."
+        },
+        "layout": {
+          "type": "List[int]",
+          "description": "List of qubits. DISABLED"
+        },
+        "measurement_error_mitigation": {
+          "type": "bool",
+          "description": "Whether to apply measurement error mitigation. Default: True"
+        },
+        "optimization_level": {
+          "type": "int",
+          "description": "The optimization level to run."
+        }
+      },
+      "required": [
+        "graphs"
+      ]
+    },
+    "return_values": {
+       "$schema": "https://json-schema.org/draft/2019-09/schema",
+       "properties": {
+          "Fidelity_mean": {
+            "description": "Mean MRF fidelity over all runs.",
+            "type": "number"
+          },
+          "Fidelity_sdev": {
+            "description": "Standard deviation of MRF fidelity over all runs.",
+            "type": "number"
+          },
+          "KL_mean": {
+            "description": "Mean Kullback-Leibler divergence over all runs.",
+            "type": "number"
+          },
+          "KL_sdev": {
+            "description": "Standard deviation of Kullback-Leibler divergence over all runs.",
+            "type": "number"
+          },
+          "SR_mean": {
+            "description": "Mean RUS success-rate for real part extraction over all runs.",
+            "type": "number"
+          },
+          "SR_sdev": {
+            "description": "Standard deviation of RUS success-rate for real part extraction over all runs.",
+            "type": "number"
+          },
+          "Depth_mean": {
+            "description": "Mean circuit depth over all runs.",
+            "type": "number"
+          },
+          "Depth_sdev": {
+            "description": "Standard deviation of circuit depth over all runs.",
+            "type": "number"
+          },
+          "all_results": {
+            "description": "A dictionary containing information about each specific run.",
+            "type": "object"
+          },
+          "inputs": {
+            "description": "A dictionary of the serialized input keyword arguments. The type is Dict[str, Any].",
+            "type": "object"
+          }
+      }
+    }
+  }
+}
